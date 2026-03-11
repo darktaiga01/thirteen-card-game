@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Tiến Lên – LAN Card Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/lobby.css" />
+</head>
+
+<body>
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="container">
+    <header class="hero">
+      <div class="hero-badge">🃏 LAN Multiplayer</div>
+      <h1 class="title">Tiến Lên</h1>
+      <p class="subtitle">Thirteen · The Vietnamese Card Game</p>
+    </header>
+
+    <!-- Name screen -->
+    <div id="screen-name" class="card glass">
+      <h2>Enter Your Name</h2>
+      <div class="input-group">
+        <input id="player-name" type="text" placeholder="Your nickname…" maxlength="16" autocomplete="off" />
+      </div>
+      <div class="btn-row">
+        <button id="btn-create" class="btn btn-primary">✦ Create Room</button>
+        <button id="btn-join-show" class="btn btn-secondary">Join Room</button>
+      </div>
+    </div>
+
+    <!-- Create room settings -->
+    <div id="screen-create" class="card glass hidden">
+      <h2>Room Settings</h2>
+      <div class="settings-grid">
+        <div class="input-group">
+          <label>Starting Chips 💰</label>
+          <input id="starting-chips" type="number" value="10000" min="500" step="500" />
+        </div>
+        <div class="input-group">
+          <label>Ante per Round</label>
+          <input id="ante-amount" type="number" value="100" min="10" step="10" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button id="btn-create-confirm" class="btn btn-primary">Create Room</button>
+        <button id="btn-back-create" class="btn btn-ghost">← Back</button>
+      </div>
+    </div>
+
+    <!-- Join room -->
+    <div id="screen-join" class="card glass hidden">
+      <h2>Join a Room</h2>
+      <div class="input-group">
+        <input id="room-code-input" type="text" placeholder="Room Code (e.g. AB3X)" maxlength="4" autocomplete="off"
+          style="text-transform:uppercase;letter-spacing:6px;font-size:1.5rem;text-align:center;" />
+      </div>
+      <div class="btn-row">
+        <button id="btn-join-confirm" class="btn btn-primary">Join →</button>
+        <button id="btn-back-join" class="btn btn-ghost">← Back</button>
+      </div>
+    </div>
+
+    <!-- Waiting room / lobby -->
+    <div id="screen-lobby" class="card glass hidden">
+      <div class="room-header">
+        <div>
+          <h2>Room <span id="room-code-display" class="code-badge"></span></h2>
+          <p class="room-meta">Ante: <span id="lobby-ante"></span> chips · Start: <span id="lobby-chips"></span> chips
+          </p>
+        </div>
+        <div id="host-badge" class="badge hidden">HOST</div>
+      </div>
+      <div id="player-list" class="player-list"></div>
+      <div class="lobby-info">
+        <p>Share your room code with friends on the same network</p>
+        <p class="lan-url" id="lan-url"></p>
+        <button id="btn-copy-url" class="btn btn-ghost"
+          style="margin-top: 5px; padding: 4px 12px; font-size: 0.85rem;">📋 Copy Link</button>
+      </div>
+      <div class="lobby-actions">
+        <!-- Host controls: Add/Remove Bot -->
+        <div class="btn-row host-controls hidden" id="host-controls">
+          <button id="btn-add-bot" class="btn btn-secondary">+ Add Bot</button>
+          <button id="btn-remove-bot" class="btn btn-ghost">- Remove Bot</button>
+        </div>
+        <!-- Start or Waiting -->
+        <div class="btn-row">
+          <button id="btn-start" class="btn btn-primary hidden">▶ Start Game</button>
+          <p id="waiting-msg" class="waiting-msg hidden">Waiting for host to start…</p>
+        </div>
+        <!-- Leave always available -->
+        <div class="btn-row">
+          <button id="btn-leave-lobby" class="btn btn-danger">Leave Room</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button id="btn-lobby-fullscreen" class="lobby-fs-btn" title="Fullscreen" aria-label="Toggle Fullscreen">⛶</button>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/lobby.js"></script>
+</body>
+
+</html>

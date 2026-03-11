@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Tiến Lên – Game</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/game.css" />
+</head>
+
+<body>
+  <!-- HUD bar -->
+  <header class="hud">
+    <div class="hud-room">
+      <span class="hud-label">Room</span>
+      <span id="hud-code" class="hud-value code" style="cursor:pointer;" title="Click to copy link"></span>
+      <div class="hud-action-btns">
+        <button id="btn-copy-game" class="hud-action-btn" title="Copy invite link">Copy</button>
+        <button id="btn-leave-game" class="hud-action-btn danger" title="Leave room">Leave</button>
+      </div>
+    </div>
+    <div class="hud-center">
+      <span id="hud-status" class="hud-status">Waiting…</span>
+    </div>
+    <div class="hud-pot">
+      <span class="hud-label">Pot</span>
+      <span id="hud-pot" class="hud-value gold">0</span>
+    </div>
+    <!-- Fullscreen toggle (always visible in HUD) -->
+    <button id="btn-hud-fullscreen" class="hud-fs-btn" title="Fullscreen" aria-label="Toggle Fullscreen">⛶</button>
+    <!-- Mobile-only hamburger -->
+    <button id="btn-hud-menu" class="hud-menu-btn" aria-label="Menu">☰</button>
+  </header>
+
+  <!-- Mobile drawer -->
+  <div id="mobile-drawer-overlay" class="mobile-drawer-overlay"></div>
+  <div id="mobile-drawer" class="mobile-drawer">
+    <div class="mobile-drawer-header">
+      <span class="mobile-drawer-title">Room Info</span>
+      <button id="btn-drawer-close" class="mobile-drawer-close">✕</button>
+    </div>
+    <div class="mobile-drawer-body">
+      <div class="mobile-drawer-row">
+        <span class="mobile-drawer-label">Room</span>
+        <span id="drawer-code" class="mobile-drawer-code"></span>
+      </div>
+      <div class="mobile-drawer-row">
+        <span class="mobile-drawer-label">Pot</span>
+        <span id="drawer-pot" class="mobile-drawer-value gold"></span>
+      </div>
+      <button id="btn-drawer-copy" class="mobile-drawer-btn">📋 Copy Invite Link</button>
+      <button id="btn-drawer-fullscreen" class="mobile-drawer-btn">⛶ Fullscreen</button>
+      <button id="btn-drawer-leave" class="mobile-drawer-btn danger">🚪 Leave Room</button>
+    </div>
+  </div>
+
+  <!-- ═══ GAME LAYOUT WRAPPER ═══
+       Mobile: flex column filling screen below HUD
+       Desktop: display:contents — children use their own fixed positioning -->
+  <div class="game-layout">
+
+    <!-- Opponents section
+         Mobile: flex row of 3 compact panels across the top
+         Desktop: display:contents — each zone uses position:fixed -->
+    <div class="opponents-section">
+
+      <!-- Opponent: Left -->
+      <div id="opponent-left" class="opponent-zone left-zone hidden">
+        <div class="opp-info vertical">
+          <div id="opp-left-avatar" class="opp-avatar"><div class="timer-ring"></div></div>
+          <div id="opp-left-name" class="opp-name"></div>
+          <div id="opp-left-chips" class="opp-chips"></div>
+          <div id="opp-left-score" class="opp-score"></div>
+        </div>
+        <div id="opp-left-hand" class="opp-hand vertical"></div>
+      </div>
+
+      <!-- Opponent: Top -->
+      <div id="opponent-top" class="opponent-zone top-zone hidden">
+        <div class="opp-info">
+          <div id="opp-top-avatar" class="opp-avatar"><div class="timer-ring"></div></div>
+          <div>
+            <div id="opp-top-name" class="opp-name"></div>
+            <div id="opp-top-chips" class="opp-chips"></div>
+          </div>
+          <div id="opp-top-score" class="opp-score"></div>
+        </div>
+        <div id="opp-top-hand" class="opp-hand"></div>
+      </div>
+
+      <!-- Opponent: Right -->
+      <div id="opponent-right" class="opponent-zone right-zone hidden">
+        <div class="opp-info vertical">
+          <div id="opp-right-avatar" class="opp-avatar"><div class="timer-ring"></div></div>
+          <div id="opp-right-name" class="opp-name"></div>
+          <div id="opp-right-chips" class="opp-chips"></div>
+          <div id="opp-right-score" class="opp-score"></div>
+        </div>
+        <div id="opp-right-hand" class="opp-hand vertical"></div>
+      </div>
+
+    </div><!-- /opponents-section -->
+
+    <!-- Right side: table + player (becomes a column in landscape mode) -->
+    <div class="game-right">
+
+      <!-- Table center -->
+      <div class="table-area">
+        <div id="table-label" class="table-label">Empty Table</div>
+        <div id="table-play-stack">
+          <div id="table-ghosts"></div>
+          <div id="table-cards" class="table-cards"></div>
+        </div>
+        <div id="table-info" class="table-info"></div>
+      </div>
+
+      <!-- Player section
+           Mobile: flex column — action bar above hand
+           Desktop: display:contents — action-bar and my-hand use position:fixed -->
+      <div class="player-section">
+
+        <!-- Action buttons -->
+        <div class="action-bar" id="action-bar">
+          <button id="btn-pass" class="action-btn btn-pass" disabled>PASS</button>
+          <div class="action-center">
+            <div class="my-info">
+              <span id="my-chips" class="my-chips">💰 0</span>
+              <span id="my-score" class="my-score">0 pts</span>
+            </div>
+          </div>
+          <button id="btn-suggest" class="action-btn btn-suggest" disabled title="Auto Select [S]">💡</button>
+          <button id="btn-play" class="action-btn btn-play" disabled title="Play selected cards [Enter]">PLAY</button>
+          <!-- Phase 2: Player's countdown bar -->
+          <div id="my-timer-bar-container">
+            <div id="my-timer-bar" class="timer-ok"></div>
+          </div>
+        </div>
+
+        <!-- My hand -->
+        <div id="my-hand" class="my-hand"></div>
+
+      </div><!-- /player-section -->
+
+    </div><!-- /game-right -->
+
+  </div><!-- /game-layout -->
+
+  <!-- ═══ Always-fixed overlay elements ═══ -->
+
+  <!-- Phase 1: VFX layer & chop flash -->
+  <div id="vfx-layer"></div>
+  <div id="vfx-chop"></div>
+
+  <!-- Phase 1: On-Fire streak badge -->
+  <div id="on-fire-badge" class="hidden">🔥 ON FIRE</div>
+
+  <!-- Phase 3: Meme reactor -->
+  <div id="meme-bar">
+    <button class="meme-btn" data-meme="chop">🔪 Bị chặt!</button>
+    <button class="meme-btn" data-meme="fire">🔥 On fire!</button>
+    <button class="meme-btn" data-meme="gg">👑 GG EZ</button>
+    <button class="meme-btn" data-meme="luck">🍀 Hắn thôi</button>
+    <button class="meme-btn" data-meme="rip">💀 RIP</button>
+  </div>
+  <div id="reaction-layer"></div>
+
+  <!-- Overlays -->
+  <div id="overlay" class="overlay hidden">
+    <div class="overlay-card glass">
+      <div id="overlay-icon" class="overlay-icon"></div>
+      <div id="overlay-title" class="overlay-title"></div>
+      <div id="overlay-body" class="overlay-body"></div>
+      <div id="overlay-actions" class="overlay-actions"></div>
+      <button id="overlay-btn" class="btn-overlay">Continue</button>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toasts" class="toasts"></div>
+
+  <!-- Fullscreen toggle -->
+  <button id="btn-fullscreen" class="log-btn" style="bottom:68px;right:10px;" title="Fullscreen" aria-label="Toggle Fullscreen">⛶</button>
+
+  <!-- Play Log button -->
+  <button id="btn-log" class="log-btn" title="Play Log">
+    📋
+    <span id="log-badge" class="log-badge"></span>
+  </button>
+
+  <!-- Play Log panel -->
+  <div id="log-panel" class="log-panel">
+    <div class="log-panel-header">
+      <span class="log-panel-title">Play Log</span>
+      <button id="btn-log-close" class="log-close-btn">✕</button>
+    </div>
+    <div id="log-entries" class="log-entries"></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/game.js"></script>
+  <script>
+    // Mobile drawer logic
+    (function () {
+      const drawer = document.getElementById('mobile-drawer');
+      const overlay = document.getElementById('mobile-drawer-overlay');
+      const btnOpen = document.getElementById('btn-hud-menu');
+      const btnClose = document.getElementById('btn-drawer-close');
+
+      function openDrawer() {
+        document.getElementById('drawer-code').textContent = document.getElementById('hud-code').textContent;
+        document.getElementById('drawer-pot').textContent = document.getElementById('hud-pot').textContent;
+        drawer.classList.add('open');
+        overlay.classList.add('open');
+      }
+      function closeDrawer() {
+        drawer.classList.remove('open');
+        overlay.classList.remove('open');
+      }
+
+      btnOpen.addEventListener('click', openDrawer);
+      btnClose.addEventListener('click', closeDrawer);
+      overlay.addEventListener('click', closeDrawer);
+
+      document.getElementById('btn-drawer-copy').addEventListener('click', function () {
+        document.getElementById('btn-copy-game').click();
+        closeDrawer();
+      });
+      document.getElementById('btn-drawer-leave').addEventListener('click', function () {
+        closeDrawer();
+        document.getElementById('btn-leave-game').click();
+      });
+      document.getElementById('btn-drawer-fullscreen').addEventListener('click', function () {
+        closeDrawer();
+        document.getElementById('btn-hud-fullscreen').click();
+      });
+    })();
+
+    // Fullscreen logic
+    (function () {
+      var hudBtn = document.getElementById('btn-hud-fullscreen');
+      var floatBtn = document.getElementById('btn-fullscreen');
+
+      // Hide the old floating button — fullscreen lives in the HUD now
+      if (floatBtn) floatBtn.style.display = 'none';
+
+      function updateIcon() {
+        var isFs = !!document.fullscreenElement;
+        var icon = isFs ? '⊡' : '⛶';
+        if (hudBtn) { hudBtn.textContent = icon; hudBtn.classList.toggle('fs-active', isFs); }
+      }
+
+      // Hide HUD button if API unsupported (e.g. iOS Safari)
+      if (!document.documentElement.requestFullscreen) {
+        if (hudBtn) hudBtn.style.display = 'none';
+        var drawerFsBtn = document.getElementById('btn-drawer-fullscreen');
+        if (drawerFsBtn) drawerFsBtn.style.display = 'none';
+        return;
+      }
+
+      function toggle() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(function () {});
+        } else {
+          document.exitFullscreen().catch(function () {});
+        }
+      }
+
+      if (hudBtn) hudBtn.addEventListener('click', toggle);
+      // Keep drawer button working
+      var drawerFsBtn = document.getElementById('btn-drawer-fullscreen');
+      if (drawerFsBtn) drawerFsBtn.addEventListener('click', toggle);
+
+      document.addEventListener('fullscreenchange', updateIcon);
+    })();
+  </script>
+</body>
+
+</html>
